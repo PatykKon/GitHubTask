@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import recruitment.task.infrastruture.GitHubController;
-import recruitment.task.application.Service;
+import recruitment.task.application.GetResponseRepositoriesService;
 import recruitment.task.application.dto.ResponseRepositories;
 import recruitment.task.application.exceptions.AppRuntimeException;
 import recruitment.task.application.exceptions.ErrorType;
@@ -30,7 +30,7 @@ public class GitHubControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private Service service;
+    private GetResponseRepositoriesService service;
 
 
     @Test

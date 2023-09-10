@@ -6,11 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResponseErrorDTO {
-    private Integer statusCode;
+    private Integer status;
     private String massage;
 
-    public ResponseErrorDTO(Integer statusCode, String massage) {
-        this.statusCode = statusCode;
+    public ResponseErrorDTO(Integer status, String massage) {
+        this.status = status;
         this.massage = massage;
     }
 }

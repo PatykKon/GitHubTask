@@ -21,7 +21,10 @@ public class RepoMapper {
     }
     public ResponseRepositories mapToResponseRepositories(RepoModel repoModel){
 
-        List<ResponseBranch> responseBranches = repoModel.getBranchList().stream().map(this::mapToResponseBranch).toList();
+        List<ResponseBranch> responseBranches = repoModel.getBranchList()
+                .stream()
+                .map(this::mapToResponseBranch)
+                .toList();
 
         ResponseRepositories repositories = new ResponseRepositories(
                 repoModel.getRepoName(),

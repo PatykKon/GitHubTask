@@ -13,7 +13,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 
 public class GitHubMapper {
-    private final GitHubClient gitHubClient;
+
 
     public RepoModel mapToRepo(RepoDTO repoDTO){
         RepoModel repoModel = RepoModel.builder()

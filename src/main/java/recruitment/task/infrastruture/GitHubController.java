@@ -1,10 +1,8 @@
 package recruitment.task.infrastruture;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import recruitment.task.application.Service;
+import recruitment.task.application.GetResponseRepositoriesService;
 import recruitment.task.application.dto.ResponseRepositories;
 
 import java.util.List;
@@ -13,13 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 public class GitHubController {
 
-    private final Service service;
+    private final GetResponseRepositoriesService service;
 
      @GetMapping("/{login}/repo")
-     public ResponseEntity<List<ResponseRepositories>> getRepositoriesWithOutForks(@PathVariable String login) {
-
-         List<ResponseRepositories> repositories = service.getRepositoriesWithOutForks(login);
-         return new ResponseEntity<>(repositories, HttpStatus.OK);
+     public List<ResponseRepositories> getRepositoriesWithOutForks(@PathVariable String login) {
+         return service.getRepositoriesWithOutForks(login);
 
      }
 }

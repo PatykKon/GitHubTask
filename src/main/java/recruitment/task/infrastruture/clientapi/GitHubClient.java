@@ -1,16 +1,20 @@
 package recruitment.task.infrastruture.clientapi;
 
 
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import lombok.Data;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import recruitment.task.application.exceptions.AppRuntimeException;
 import recruitment.task.infrastruture.clientapi.dto.branch.BranchDTO;
 import recruitment.task.infrastruture.clientapi.dto.repo.RepoDTO;
-import recruitment.task.application.exceptions.AppRuntimeException;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import static recruitment.task.application.exceptions.ErrorType.E404;
@@ -18,35 +22,51 @@ import static recruitment.task.application.exceptions.ErrorType.E404;
 @Component
 class GitHubClient {
 
-    private static final String GITHUB_URL_USERS = "https://api.github.com/users/";
-    private static final String GITHUB_URL_REPOS = "https://api.github.com/repos/";
+    private static final String GITHUB_URL_USERS = "/users/";
+    private static final String GITHUB_URL_REPOS = "/repos/";
 
-    private RestTemplate restTemplate = new RestTemplate();
 
-    List<RepoDTO> getRepositories(String login){
+    private final WebClient webClient;
 
-        try {
-            List<RepoDTO> repos = callUsers("/"+login+"/repos",RepoDTO[].class,login);
-            return repos;
+    @Autowired
+    GitHubClient(WebClient webClient) {
+        this.webClient = webClient;
+    }
 
-        } catch (HttpClientErrorException.NotFound e) {
+    public Mono<List<RepoDTO>> repoDate(String login) {
 
-            throw new AppRuntimeException(E404);
-        }
+        return webClient
+                .get()
+                .uri(GITHUB_URL_USERS+"/"+login+"/repos")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError,clientResponse -> {
+                    if(clientResponse.statusCode()== HttpStatus.NOT_FOUND){
+                        return Mono.error(new AppRuntimeException(E404));
+                    }
+                    return Mono.error(new RuntimeException());
+                })
+                .bodyToFlux(RepoDTO.class)
+                .collectList();
 
+    }
+
+    public Mono<List<BranchDTO>> branchDate(String login,String nameRepo) {
+        return webClient
+                .get()
+                .uri(GITHUB_URL_REPOS+"/"+login+"/"+nameRepo+"/branches")
+                .retrieve()
+                .bodyToFlux(BranchDTO.class)
+                .collectList();
+    }
+
+    List<RepoDTO> getRepositories(String login) {
+        Mono<List<RepoDTO>> repoMono = repoDate(login);
+        List<RepoDTO> repoList = repoMono.block();
+        return repoList;
     }
     List<BranchDTO> getBranches(String login, String nameRepo){
-        List<BranchDTO> branches = callRepos("/"+login+"/"+nameRepo+"/branches",BranchDTO[].class,login,nameRepo);
-        return branches;
-    }
-
-
-    private <T> List<T> callUsers(String url, Class<T[]> responseType, Object... objects) {
-        ResponseEntity<T[]>response  =restTemplate.exchange(GITHUB_URL_USERS + url, HttpMethod.GET,null, responseType);
-        return Arrays.asList(response.getBody());
-    }
-    private <T> List<T> callRepos(String url, Class<T[]> responseType, Object... objects) {
-        ResponseEntity<T[]>response  =restTemplate.exchange(GITHUB_URL_REPOS + url, HttpMethod.GET,null, responseType);
-        return Arrays.asList(response.getBody());
+        Mono<List<BranchDTO>> branches = branchDate(login,nameRepo);
+        List<BranchDTO> branchDTOS = branches.block();
+        return branchDTOS;
     }
 }

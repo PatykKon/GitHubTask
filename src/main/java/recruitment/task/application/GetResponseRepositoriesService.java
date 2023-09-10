@@ -10,7 +10,7 @@ import java.util.List;
 
 @org.springframework.stereotype.Service
 @AllArgsConstructor
-public class Service {
+public class GetResponseRepositoriesService {
 
     private final GitService gitService;
     private final RepoMapper repoMapper;
@@ -20,7 +20,9 @@ public class Service {
 
         List<RepoModel> repositoriesWithOutForks = gitService.getRepositoriesWithOutForks(login);
 
-        List<ResponseRepositories> responseRepositories = repositoriesWithOutForks.stream().map(repoMapper::mapToResponseRepositories).toList();
+        List<ResponseRepositories> responseRepositories = repositoriesWithOutForks.stream()
+                .map(repoMapper::mapToResponseRepositories)
+                .toList();
 
         return responseRepositories;
     }
