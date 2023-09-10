@@ -1,5 +1,5 @@
 # GitHubTask
-Used Techonolgies:
+Used Technologies:
 - 
 Java 17
 -
